@@ -25,15 +25,13 @@ async function sendMessage() {
     const data = await response.json();
     console.log("Response data:", data);
 
-    const botMessage = data.reply; // Make sure this matches the backend response
+    const botMessage = data.reply;
     console.log("Bot message:", botMessage);
 
     // Add chat message to the chat history
     chatHistory.innerHTML += `<div class="user-message">${userMessage}</div>`;
     chatHistory.innerHTML += `<div class="bot-message">${botMessage}</div>`;
 
-    // Scroll to the bottom of the chat history
-    chatHistory.scrollTop = chatHistory.scrollHeight;
   } catch (error) {
     console.error("Error:", error);
     // Optionally display an error message to the user
