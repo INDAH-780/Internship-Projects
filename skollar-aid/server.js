@@ -1,48 +1,57 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const path = require("path"); // Ensure 'path' is required
+const path = require("path");
 const fs = require("fs");
 const csv = require("csv-parser");
+require("dotenv").config(); // To load environment variables from a .env file
 
-const {
-  GoogleGenerativeAI,
-} = require("@google/generative-ai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const apiKey = "AIzaSyA8hpjwNRPLuI6z1KfS_yVc5I40cDrZ2MU";
+// Load API Key from environment variables
+const apiKey = process.env.GOOGLE_API_KEY;
+if (!apiKey) {
+  throw new Error(
+    "API key is missing. Please set GOOGLE_API_KEY in your environment variables."
+  );
+}
+
 const genAI = new GoogleGenerativeAI(apiKey);
-
 const app = express();
 const port = 3000;
 
+// Initialize the generative model
 const model = genAI.getGenerativeModel({
   model: "gemini-1.0-pro",
 });
 
-
-
-
+// Array to hold the custom data
 const customData = [];
 
 // Load CSV data into customData
-fs.createReadStream(path.join(__dirname, 'scholaships.csv'))
+fs.createReadStream(path.join(__dirname, "scholaships.csv"))
   .pipe(csv())
-  .on('data', (data) => customData.push(data))
-  .on('end', () => {
-    console.log('CSV data loaded:', customData);
+  .on("data", (data) => customData.push(data))
+  .on("end", () => {
+    console.log("CSV data loaded:", customData);
   });
 
+// Function to get a custom response from the loaded data
 function getCustomResponse(message) {
-  const key = message.toLowerCase().replace(/[^a-z]/g, '');
-  const entry = customData.find(item => item.question.toLowerCase().replace(/[^a-z]/g, '') === key);
-  return entry ? entry.answer : null;
+  // Normalize the message
+  const key = message.toLowerCase().replace(/[^a-z]/g, "");
+  // Search for a matching entry in the custom data
+  const entry = customData.find((item) =>
+    item["Scholarship Name"].toLowerCase().includes(key)
+  );
+  return entry
+    ? `Scholarship Name: ${entry["Scholarship Name"]}, Type: ${entry["Scholarship Type"]}, Host Country: ${entry["Host Country"]}, Eligibility: ${entry["Eligibility"]}, Application Dateline: ${entry["Application Dateline"]}, Link: ${entry["Application Link"]}`
+    : null;
 }
 
+// Middleware
 app.use(bodyParser.json());
-// Serve the 'styles' and 'scripts' folders individually
 app.use("/styles", express.static(path.join(__dirname, "styles")));
 app.use("/scripts", express.static(path.join(__dirname, "scripts")));
-// Serve static files from the 'assets' directory
-// Serve static files from the root directory
 app.use(express.static(path.join(__dirname)));
 
 // Serve the index.html file
@@ -50,7 +59,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// API endpoint
+// API endpoint for messages
 app.post("/api/message", async (req, res) => {
   const { message } = req.body;
 
@@ -60,19 +69,32 @@ app.post("/api/message", async (req, res) => {
     return res.json({ reply: customResponse });
   }
 
-  const generationConfig = {
-    temperature: 0.9,
-    topP: 1,
-    maxOutputTokens: 2048,
-    responseMimeType: "text/plain",
-  };
+  try {
+    // Set generation configuration
+    const generationConfig = {
+      temperature: 0.9,
+      topP: 1,
+      maxOutputTokens: 2048,
+      responseMimeType: "text/plain",
+    };
 
-   const chatSession = model.startChat({
-     generationConfig,
-     history: [{ role: "user", parts: [{ text: message }] }],
-   });
-  const result = await chatSession.sendMessage(message);
-  res.json({ reply: result.response.text() });
+    // Start a chat session with the generative model
+    const chatSession = model.startChat({
+      generationConfig,
+      history: [{ role: "user", parts: [{ text: message }] }],
+    });
+
+    // Send message and get response
+    const result = await chatSession.sendMessage(message);
+    res.json({ reply: result.response.text() });
+  } catch (error) {
+    console.error("Error generating response:", error);
+    res
+      .status(500)
+      .json({
+        reply: "Sorry, something went wrong while generating the response.",
+      });
+  }
 });
 
 app.listen(port, () => {
