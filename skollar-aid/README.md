@@ -1,4 +1,4 @@
- Skollar Aid is a chatbot designed to assist students and individuals seeking financial aid by providing detailed and up-to-date information on available scholarships, application processes, and eligibility requirements. The project consist of both the front end and backend.
+Scholar-aid is a chatbot application that uses a combination of custom data and the Google Generative AI API to provide responses to user queries. The application is built with Node.js, Express, and integrates with a CSV file for custom responses. The chatbot serves a web interface where users can interact with it and receive answers on schorships based on both predefined data and AI-generated content.
 
  Features
 
