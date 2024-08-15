@@ -8,7 +8,7 @@ require("dotenv").config(); // To load environment variables from a .env file
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Load API Key from environment variables
-const apiKey = process.env.GOOGLE_API_KEY;
+const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
   throw new Error(
     "API key is missing. Please set GOOGLE_API_KEY in your environment variables."
