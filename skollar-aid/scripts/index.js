@@ -1,6 +1,7 @@
 const chatHistory = document.getElementById("chat-history");
 const userInput = document.getElementById("user-input");
 const form = document.getElementById("chat-form");
+// const student = document.getElementsByClassName
 
 async function sendMessage() {
   const userMessage = userInput.value;
@@ -8,7 +9,7 @@ async function sendMessage() {
   console.log("User message:", userMessage);
 
   try {
-    const response = await fetch("/api/message", {
+    const response = await fetch("http://localhost:3000/api/message", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

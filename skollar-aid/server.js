@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
 const fs = require("fs");
@@ -17,13 +18,12 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey);
 const app = express();
+
 const port = 3000;
 
-// Initialize the generative model
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.0-pro",
+  model: "gemini-1.5-flash",
 });
-
 // Array to hold the custom data
 const customData = [];
 
@@ -50,8 +50,10 @@ function getCustomResponse(message) {
 
 // Middleware
 app.use(bodyParser.json());
+app.use(cors());
 app.use("/styles", express.static(path.join(__dirname, "styles")));
 app.use("/scripts", express.static(path.join(__dirname, "scripts")));
+app.use("/assets", express.static(path.join(__dirname, "loader")));
 app.use(express.static(path.join(__dirname)));
 
 // Serve the index.html file
