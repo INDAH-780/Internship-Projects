@@ -4,19 +4,21 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const fs = require("fs");
 const csv = require("csv-parser");
-require("dotenv").config(); // To load environment variables from a .env file
+const multer = require("multer");
+require("dotenv").config(); 
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Load API Key from environment variables
-const apiKey = process.env.GEMINI_API_KEY;
+/* const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
   throw new Error(
     "API key is missing. Please set GEMINI_API_KEY in your environment variables."
   );
 }
 
-const genAI = new GoogleGenerativeAI(apiKey);
+const genAI = new GoogleGenerativeAI(apiKey); */
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const app = express();
 
 const port = 3000;
@@ -24,6 +26,29 @@ const port = 3000;
 const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash",
 });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'assets/')
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "_" + file.originalname)
+  }
+})
+
+const upload = multer({storage: storage}).single('file')
+let filePath;
+
+app.post('/upload', (req, res,) => {
+  upload(req, res, (err) => {
+    if (err) {
+      return res.send(500).json(err);
+    }
+    filePath = req.file.path
+
+  })
+  
+})
 // Array to hold the custom data
 const customData = [];
 
@@ -65,12 +90,13 @@ app.get("/", (req, res) => {
 app.post("/api/message", async (req, res) => {
   const { message } = req.body;
 
-  // Check custom data first
+  // **Prioritize custom data first**
   const customResponse = getCustomResponse(message);
   if (customResponse) {
     return res.json({ reply: customResponse });
   }
 
+  // If no custom match, fall back to Gemini model
   try {
     // Set generation configuration
     const generationConfig = {
@@ -91,11 +117,9 @@ app.post("/api/message", async (req, res) => {
     res.json({ reply: result.response.text() });
   } catch (error) {
     console.error("Error generating response:", error);
-    res
-      .status(500)
-      .json({
-        reply: "Sorry, something went wrong while generating the response.",
-      });
+    res.status(500).json({
+      reply: "Sorry, something went wrong while generating the response.",
+    });
   }
 });
 

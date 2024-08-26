@@ -1,11 +1,12 @@
 const chatHistory = document.getElementById("chat-history");
 const userInput = document.getElementById("user-input");
 const form = document.getElementById("chat-form");
+const displayedImage = document.getElementById("files");
 // const student = document.getElementsByClassName
 
 async function sendMessage() {
   const userMessage = userInput.value;
-  userInput.value = ""; // Clear input field
+  userInput.value = ""; 
   console.log("User message:", userMessage);
 
   try {
@@ -14,7 +15,7 @@ async function sendMessage() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message: userMessage }), // Ensure 'message' key matches the backend
+      body: JSON.stringify({ message: userMessage }), 
     });
 
     // Check if the response is OK
@@ -39,6 +40,38 @@ async function sendMessage() {
     chatHistory.innerHTML += `<div class="error-message">Error: ${error.message}</div>`;
   }
 }
+displayedImage.addEventListener('change', async function(event) {
+  const formData = new FormData();
+
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          const img = document.getElementById('imagePreview');
+          img.src = e.target.result;
+          img.style.display = 'block'; 
+        };
+        
+        reader.readAsDataURL(file); 
+      }
+
+       formData.append("file", file); 
+
+       
+        try{
+           const options = {
+             method: "POST",
+             body: formData,
+           };
+          const response = await fetch('http://localhost:3000/upload', options)
+          const data = await response.json();
+          console.log(data)
+
+        }catch (err){
+          console.log(err)
+        }
+    })
 
 form.addEventListener("submit", (event) => {
   event.preventDefault(); // Prevent form submission
