@@ -5,50 +5,103 @@ const path = require("path");
 const fs = require("fs");
 const csv = require("csv-parser");
 const multer = require("multer");
-require("dotenv").config(); 
+require("dotenv").config();
 
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const {
+  GoogleGenerativeAI,
+  HarmCategory,
+  HarmBlockThreshold,
+} = require("@google/generative-ai");
+const { GoogleAIFileManager } = require("@google/generative-ai/server");
 
-// Load API Key from environment variables
-/* const apiKey = process.env.GEMINI_API_KEY;
-if (!apiKey) {
-  throw new Error(
-    "API key is missing. Please set GEMINI_API_KEY in your environment variables."
-  );
-}
+const apiKey = process.env.GEMINI_API_KEY;
+const genAI = new GoogleGenerativeAI(apiKey);
+const fileManager = new GoogleAIFileManager(apiKey);
 
-const genAI = new GoogleGenerativeAI(apiKey); */
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+
 const app = express();
 
 const port = 3000;
+app.use(cors());
 
 const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash",
 });
 
+async function uploadToGemini(path, mimeType) {
+  const uploadResult = await fileManager.uploadFile(path, {
+    mimeType,
+    displayName: path,
+  });
+  const file = uploadResult.file;
+  console.log(`Uploaded file ${file.displayName} as: ${file.name}`);
+  return file;
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'assets/')
+    cb(null, "uploads/");
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "_" + file.originalname)
-  }
-})
+    cb(null, Date.now() + "_" + file.originalname);
+  },
+});
 
-const upload = multer({storage: storage}).single('file')
+const upload = multer({ storage: storage }).single("image");
 let filePath;
 
-app.post('/upload', (req, res,) => {
-  upload(req, res, (err) => {
+app.post("/upload", (req, res) => {
+  upload(req, res, async (err) => {
     if (err) {
-      return res.send(500).json(err);
+      console.error("Error during file upload:", err);
+      return res.sendStatus(500).json(err);
+
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
     }
     filePath = req.file.path
+     
 
-  })
-  
-})
+          try {
+            function fileToGenerativePart(path, mimeType){
+              
+              return {
+                  path: filePath,
+                  mimeType: mimeType,
+                inlineData: {
+                  data: Buffer.from(fs.readFileSync(path)).toString("base64"),
+                  mimeType
+                }
+              }
+            }
+      // Set generation configuration for the Gemini API
+      const generationConfig = {
+        temperature: 0.9,
+        topP: 1,
+        maxOutputTokens: 2048,
+        responseMimeType: "text/plain",
+      };
+
+      // Start a chat session with the generative model
+      const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+      });
+
+      const prompt = req.body.message
+      const answer = await model.generateContent([prompt, fileToGenerativePart(filePath, "image/jpeg")])
+      const response = await answer.response
+      const text = response.text()
+      res.send(text)
+
+      
+    } catch (error) {
+      console.error("Error during Gemini API call:", error);
+      return res.status(500).json({ error: "Failed to process message with Gemini API" });
+    }
+  });
+});
 // Array to hold the custom data
 const customData = [];
 
@@ -88,7 +141,7 @@ app.get("/", (req, res) => {
 
 // API endpoint for messages
 app.post("/api/message", async (req, res) => {
-  const { message } = req.body;
+  const { message, imagePath } = req.body;
 
   // **Prioritize custom data first**
   const customResponse = getCustomResponse(message);
@@ -96,7 +149,6 @@ app.post("/api/message", async (req, res) => {
     return res.json({ reply: customResponse });
   }
 
-  // If no custom match, fall back to Gemini model
   try {
     // Set generation configuration
     const generationConfig = {
@@ -106,14 +158,33 @@ app.post("/api/message", async (req, res) => {
       responseMimeType: "text/plain",
     };
 
-    // Start a chat session with the generative model
-    const chatSession = model.startChat({
-      generationConfig,
-      history: [{ role: "user", parts: [{ text: message }] }],
-    });
+    
 
-    // Send message and get response
-    const result = await chatSession.sendMessage(message);
+    const files = [
+    await uploadToGemini(filePath, "image/jpeg"),
+  ];
+
+    const chatSession = model.startChat({
+    generationConfig,
+
+    history: [{
+        role: "user",
+        parts: [
+          {
+            fileData: {
+              mimeType: files[0].mimeType,
+              fileUri: files[0].uri,
+            },
+          },
+        ],
+      },
+    ],
+  });
+
+  const result = await chatSession.sendMessage(message);
+  console.log(result.response.text());
+
+    
     res.json({ reply: result.response.text() });
   } catch (error) {
     console.error("Error generating response:", error);

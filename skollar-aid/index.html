@@ -14,13 +14,17 @@
 <body>
   <div id="chat-container">
   <h1> Skollar Aid</h1>
-  <div id="chat-history"></div>
+  <div id="chat-history">
+    <img id="imagePreview" alt="Image Preview"/>
+  </div>
   <form id="chat-form">
+    
     <input type="text" id="user-input" placeholder="Enter your message">
-      <img id="imagePreview" alt="Image Preview"/>
+      
     <label  for="files">Upload image</label>
-    <input id="files" accept="image/*" type="file" hidden/>
-    <button type="submit">Send</button>
+    <input id="files" accept="image/*" type="file" name="image" hidden/>
+   <!--  <input id="image-description"  type="text"/> -->
+    <button type="submit" id="analyzeImage">Send</button>
   </form>
 </div>
 <div id="loader">
