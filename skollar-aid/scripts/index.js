@@ -40,7 +40,7 @@ displayedImage.addEventListener("change", (event) => {
       // the path of the file is been returned from the server through the data.filePath
       const filePath = data.filePath; 
 
-      // Use the file path to upload to Gemini
+     
       return fetch("http://localhost:3000/gemini", {
         method: "POST",
         headers: {
@@ -48,7 +48,7 @@ displayedImage.addEventListener("change", (event) => {
         },
         body: JSON.stringify({
           path: filePath,
-          mimeType: "image/jpeg", // Adjust based on the file type
+          mimeType: "image/jpeg", 
         }),
       });
     })
