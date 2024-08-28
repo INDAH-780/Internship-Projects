@@ -80,7 +80,7 @@ async function sendMessage() {
        headers: {
          "Content-Type": "application/json",
        },
-       body: JSON.stringify({ message: userMessage, imagePath: selectedFile.name }),
+       body: JSON.stringify({ message: userMessage, imagePath: selectedFile }),
      });
 
      if (!response.ok) {
