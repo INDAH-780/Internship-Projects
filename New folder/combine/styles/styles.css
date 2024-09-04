@@ -1,0 +1,164 @@
+
+
+* {
+    font-family: "Poppins", sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-width: 100vh;
+    background-color: #f5f5f5;
+}
+.formH {
+    display: flex;
+    align-items: center;
+    width: 100%; 
+}
+
+.content {
+    display: flex;
+    align-items: center;
+    width: inherit; 
+    gap: 10px;
+   
+}
+
+.text {
+    flex: 7; 
+}
+
+#textInput {
+    width: 100%; 
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#uploads {
+    flex: 9; /* 15% of the space */
+    display: flex;
+    margin: 2px;
+    border-radius: 8px;
+    background: #ccc;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+   width: 100%;
+    padding: 10px;
+    height: 110px; 
+}
+
+.imgg {
+    flex: 1.5; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#imagePreview {
+    max-height: 100px;
+    max-width: 100px;  
+    border-radius: 8px;
+}
+
+#descriptionInput {
+    width: 100%; /* Ensure the description input takes the full width */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#sendButton {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#sendButton:hover {
+    background-color: #0056b3;
+}
+
+#chat-container {
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    width: 900px;
+    background-color: white;
+}
+
+#header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#chat-history {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.message img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+}
+
+.message .text {
+    margin-top: 5px;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+.user-message {
+    align-items: flex-end;
+}
+
+.user-message .text {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.bot-message .text {
+    background-color: #cce5ff;
+    color: #004085;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+form, #image-chat-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+input[type="file"] {
+    flex-grow: 1;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+input[type="text"] {
+    flex-grow: 2;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}

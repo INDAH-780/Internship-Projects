@@ -38,7 +38,7 @@ async function uploadToGemini(path, mimeType) {
   console.log(`Uploaded file ${file.displayName} as: ${file.name}`);
   return file;
 }
-
+//storage for
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");

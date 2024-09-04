@@ -1,0 +1,71 @@
+*{
+      font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+  }
+  
+  #chat-box {
+   font-family: "Poppins", sans-serif;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    width: 600px;
+  }
+  
+
+  
+  #chat-history {
+    max-height: 500px; 
+  overflow-y: auto; 
+  margin-bottom: 10px;
+   
+  }
+  
+  .user-message {
+    text-align: right;
+    padding: 10px;
+    background-color: #06402B;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    color: white;
+  }
+  
+  .bot-message {
+    text-align: left;
+    padding: 10px;
+    background-color: #002147;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    color: white;
+  }
+  
+  form {
+    display: flex;
+  }
+  
+  input {
+    flex-grow: 1;
+    margin-right: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  button {
+    background-color: #4CAF50;
+    color: black;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+my css

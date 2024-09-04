@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" href="styles/styles.css">
+    <title>Skollar Aid</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+   <div id="chat-container">
+    <header id="header">
+        <h1>Skollar Aid</h1>
+    </header>
+    <main>
+        <div id="chat-history"></div>
+        <form id="chat-form">
+            <div class="formH">
+                <div class="content">
+                    <div class="text">
+                        <input id="textInput" type="text" placeholder="Your message here"/>
+
+                    </div>
+                    <!-- Text input field -->
+                    
+
+                    <!-- Uploads container which will be hidden and will only be visible when the upload icon is clicked-->
+                    <div id="uploads" class="uploads" style="display: none;">
+                        <img id="imagePreview" alt="Image Preview" />
+                        <input id="descriptionInput" type="text" placeholder="Type a description"/>
+                    </div>
+
+                    <!-- Upload button and file input -->
+                     <div class="imgg">
+                    <label for="imageInput">Upload</label>
+                    <input id="imageInput" accept="image/*" type="file" name="image" hidden/>    
+                     </div>
+                    
+                </div>
+                <div class="fomb">
+                    <button id="sendButton" type="submit">Send</button>
+                </div>
+            </div>
+        </form>
+    </main>
+</div>
+
+    <script src="script/script.js"></script>
+</body>
+</html>
