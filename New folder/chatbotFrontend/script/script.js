@@ -17,29 +17,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
   chatForm.addEventListener("submit", function (event) {
     event.preventDefault();
-
-    const imageFile = imageInput.files[0 ];
+    //[0] accesses the first file in the list. If the user has selected multiple files, this will only get the first one.
+    const imageFile = imageInput.files[0]; //.files is a property of the file input element that returns a FileList object, which is a list of files selected by the user.
     const description = descriptionInput.value.trim();
 
     if (imageFile && description) {
-      const reader = new FileReader();
+      const reader = new FileReader(); //Creates a new FileReader object, which is used to read the content of the file (imageFile).
       reader.onload = function (e) {
-     
+        //this function is executed when the file has been read
         addMessageToChatHistory(e.target.result, description, "user-message");
         saveMessageToLocalStorage(e.target.result, description, "user-message");
 
-        
         const botReply = generateBotReply();
         setTimeout(() => {
           addMessageToChatHistory(null, botReply, "bot-message");
           saveMessageToLocalStorage(null, botReply, "bot-message");
-        }, 1000); 
+        }, 1000);
 
         imageInput.value = "";
         descriptionInput.value = "";
         chatHistory.scrollTop = chatHistory.scrollHeight;
       };
       reader.readAsDataURL(imageFile);
+      // reader: This is an instance of FileReader, which is used to read files from the user's system.
+      // readAsDataURL(): This method of FileReader reads the content of the file and encodes it as a base64 data URL.
+
+      //The line reader.readAsDataURL(imageFile); is used in conjunction with the FileReader object to read the content of a file, specifically an image file, and convert it into a data URL.
+      /*  The data URL is a base64-encoded string that represents the file’s content. For images, this means converting the image into a format that can be embedded directly into HTML or CSS. This is useful for displaying images without needing a separate file request to a */
     }
   });
 

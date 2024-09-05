@@ -6,6 +6,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const imageInput = document.getElementById("imageInput");
   const uploadsContainer = document.getElementById("uploads");
   const imagePreview = document.getElementById("imagePreview");
+  //for the enlarge image
+  const modal = document.getElementById("imageModal");
+  const modalImage = document.getElementById("modalImage");
+  const closeModal = document.querySelector(".close");
 
   const STORAGE_KEY = "chatHistory";
   const TIMESTAMP_KEY = "chatTimestamp";
@@ -42,33 +46,36 @@ document.addEventListener("DOMContentLoaded", function () {
       formData.append("image", imageFile);
       formData.append("description", description);
 
-      fetch("/upload", {
-        // Update with your actual backend route
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          // Assuming the backend responds with the URL of the uploaded image
-          addMessageToChatHistory(data.imageUrl, description, "user-message");
-          saveMessageToLocalStorage(data.imageUrl, description, "user-message");
+     fetch("http://localhost:3000/upload", {
+       method: "POST",
+       body: formData,
+     })
+       .then((response) => response.json())
+       .then((data) => {
+       if (data.imageUrl) {
+        
+        data.imageUrl = "http://localhost:3000" + data.imageUrl;
+        console.log(data.imageUrl);
+         addMessageToChatHistory(data.imageUrl, description, "user-message");
+         saveMessageToLocalStorage(data.imageUrl, description, "user-message");
 
-          const botReply = generateBotReply();
-          setTimeout(() => {
-            addMessageToChatHistory(null, botReply, "bot-message");
-            saveMessageToLocalStorage(null, botReply, "bot-message");
-          }, 1000);
+         const botReply = generateBotReply();
+         setTimeout(() => {
+           addMessageToChatHistory(null, botReply, "bot-message");
+           saveMessageToLocalStorage(null, botReply, "bot-message");
+         }, 1000);
 
-          imageInput.value = "";
-          imagePreview.src = "";
-          textInput.style.display = "block";
-          uploadsContainer.style.display = "none";
-          descriptionInput.value = "";
-          chatHistory.scrollTop = chatHistory.scrollHeight;
-        })
-        .catch((error) => {
-          console.error("Error uploading image:", error);
-        });
+         imageInput.value = "";
+         imagePreview.src = "";
+         textInput.style.display = "block";
+         uploadsContainer.style.display = "none";
+         descriptionInput.value = "";
+         chatHistory.scrollTop = chatHistory.scrollHeight;
+       }
+       })
+       .catch((error) => {
+         console.error("Error uploading image:", error);
+       });
     }
   });
 
@@ -88,17 +95,44 @@ document.addEventListener("DOMContentLoaded", function () {
       reader.readAsDataURL(file);
     }
   });
-
+//This function is responsible for adding chats to the history
   function addMessageToChatHistory(imageSrc, description, className) {
     const messageElement = document.createElement("div");
     messageElement.classList.add("message", className);
 
-    if (imageSrc) {
-      const imgElement = document.createElement("img");
-      imgElement.src = imageSrc;
-      imgElement.style.maxWidth = "100px"; // Small preview size
-      messageElement.appendChild(imgElement);
+//dynamically adding images to chat history
+  if (imageSrc) {
+    console.log("Image Source:", imageSrc);
+    const imgElement = document.createElement("img");
+    imgElement.src = imageSrc;
+    imgElement.style.maxWidth = "100px"; // Small preview size
+    imgElement.style.cursor = "pointer"; // Show pointer cursor on hover
+    imgElement.addEventListener("click", function () {
+      openModal(imageSrc); // Open modal with the clicked image
+    });
+    messageElement.appendChild(imgElement);
+
+    //for the enlargeimage
+
+    // Function to open the modal with a specific image
+    function openModal(imageSrc) {
+      modal.style.display = "flex";
+      modalImage.src = imageSrc;
     }
+
+    // Close the modal when clicking the close button
+    closeModal.addEventListener("click", function () {
+      modal.style.display = "none";
+    });
+
+    // Close the modal when clicking outside the image
+    window.addEventListener("click", function (event) {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  }
+
 
     const textElement = document.createElement("div");
     textElement.classList.add("text");
@@ -140,3 +174,4 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 });
+
