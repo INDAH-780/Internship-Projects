@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;400;500&display=swap" rel="stylesheet">
+    
 </head>
 <body>
    <div id="chat-container">
@@ -14,7 +15,10 @@
         <h1>Skollar Aid</h1>
     </header>
     <main>
+        <!-- Layout for both user message and bot message -->
         <div id="chat-history"></div>
+
+        <!-- Form to accept user input -->
         <form id="chat-form">
             <div class="formH">
                 <div class="content">
@@ -22,7 +26,6 @@
                         <input id="textInput" type="text" placeholder="Your message here"/>
 
                     </div>
-                    <!-- Text input field -->
                     
 
                     <!-- Uploads container which will be hidden and will only be visible when the upload icon is clicked-->
@@ -54,8 +57,7 @@
         <div id="caption"></div>
     <!-- </div> -->
 </div>
-
-
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script src="script/script.js"></script>
 </body>

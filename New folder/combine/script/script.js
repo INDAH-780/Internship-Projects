@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // Wait until the DOM is fully loaded before executing the script, wait until the html and css is loaded completely before executing js.
   const textChatForm = document.getElementById("chat-form");
   const chatHistory = document.getElementById("chat-history");
   const textInput = document.getElementById("textInput");
@@ -6,145 +7,177 @@ document.addEventListener("DOMContentLoaded", function () {
   const imageInput = document.getElementById("imageInput");
   const uploadsContainer = document.getElementById("uploads");
   const imagePreview = document.getElementById("imagePreview");
-  //for the enlarge image
   const modal = document.getElementById("imageModal");
   const modalImage = document.getElementById("modalImage");
   const closeModal = document.querySelector(".close");
 
   const STORAGE_KEY = "chatHistory";
   const TIMESTAMP_KEY = "chatTimestamp";
-  const EXPIRY_TIME = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  const EXPIRY_TIME = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+  const BASE_URL = "http://localhost:3000"; // Base URL for accessing files
 
-  // Check if the chat history is older than 24 hours
+  // Initialize Markdown parser
+  const marked = window.marked;
+
+  // Check if the chat history is older than 4 hours, this is a function call and the function is found down, at the end of this file
   checkChatExpiry();
 
-  // Load chat history from local storage
+  // Load chat history from local storage, this is a function call and the function is found down, at the end of this file
   loadChatHistory();
+//event listener to handle form submision
+  textChatForm.addEventListener("submit", async function (event) {
+    event.preventDefault(); //prevent the default form submission
 
-  textChatForm.addEventListener("submit", function (event) {
-    event.preventDefault();
-    const message = textInput.value.trim();
-    const imageFile = imageInput.files[0];
-    const description = descriptionInput.value.trim();
-
+    // Handle text message submission
+    const message = textInput.value.trim(); //trim removes unneccesary white spaces
     if (message) {
-      addMessageToChatHistory(null, message, "user-message");
+      addMessageToChatHistory(null, message, "user-message");  //user-message is the classname of the users div that is being created in js and dynamycally added to the chathistory when a user sends a message
       saveMessageToLocalStorage(null, message, "user-message");
 
-      const botReply = generateBotReply();
-      setTimeout(() => {
-        addMessageToChatHistory(null, botReply, "bot-message");
-        saveMessageToLocalStorage(null, botReply, "bot-message");
-      }, 1000);
+      try {
+        const response = await fetch(`${BASE_URL}/api/message`, {
+          // Send the message to the chatbot API
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: message }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        const botReply = data.reply || "Sorry, no reply from the bot.";
+        setTimeout(() => {
+          addMessageToChatHistory(null, botReply, "bot-message");
+          saveMessageToLocalStorage(null, botReply, "bot-message");
+        }, 1000);
+      } catch (error) {
+        console.error("Error fetching bot reply:", error);
+      }
 
       textInput.value = "";
       chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
+    // Handle image upload
+    const imageFile = imageInput.files[0];
+    const description = descriptionInput.value.trim();
     if (imageFile && description) {
       const formData = new FormData();
       formData.append("image", imageFile);
       formData.append("description", description);
 
-     fetch("http://localhost:3000/upload", {
-       method: "POST",
-       body: formData,
-     })
-       .then((response) => response.json())
-       .then((data) => {
-       if (data.imageUrl) {
-        
-        data.imageUrl = "http://localhost:3000" + data.imageUrl;
-        console.log(data.imageUrl);
-         addMessageToChatHistory(data.imageUrl, description, "user-message");
-         saveMessageToLocalStorage(data.imageUrl, description, "user-message");
+      try {
+        const uploadResponse = await fetch(`${BASE_URL}/upload`, {
+          // Send the form data to the server for upload
+          method: "POST",
+          body: formData,
+        });
 
-         const botReply = generateBotReply();
-         setTimeout(() => {
-           addMessageToChatHistory(null, botReply, "bot-message");
-           saveMessageToLocalStorage(null, botReply, "bot-message");
-         }, 1000);
+        if (!uploadResponse.ok) {
+          throw new Error("Network response was not ok");
+        }
 
-         imageInput.value = "";
-         imagePreview.src = "";
-         textInput.style.display = "block";
-         uploadsContainer.style.display = "none";
-         descriptionInput.value = "";
-         chatHistory.scrollTop = chatHistory.scrollHeight;
-       }
-       })
-       .catch((error) => {
-         console.error("Error uploading image:", error);
-       });
+        const data = await uploadResponse.json();
+        if (data.imageUrl) {
+          // Prepend the base URL to the image URL
+          const imageUrl = `${BASE_URL}${data.imageUrl}`;
+          addMessageToChatHistory(imageUrl, description, "user-message");
+          saveMessageToLocalStorage(imageUrl, description, "user-message");
+
+          // Send message and file path to the chatbot
+          const messageResponse = await fetch(`${BASE_URL}/api/message`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message: message,
+              filePath: data.filePath,
+            }),
+          });
+
+          if (!messageResponse.ok) {
+            throw new Error("Network response was not ok");
+          }
+
+          const messageData = await messageResponse.json();
+          const botReply = messageData.reply || "Sorry, no reply from the bot.";
+          setTimeout(() => {
+            addMessageToChatHistory(null, botReply, "bot-message");
+            saveMessageToLocalStorage(null, botReply, "bot-message");
+          }, 1000);
+
+          // Clear inputs and preview
+          imageInput.value = "";
+          imagePreview.src = "";
+          textInput.style.display = "block";
+          uploadsContainer.style.display = "none";
+          descriptionInput.value = "";
+          chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
     }
   });
 
   imageInput.addEventListener("change", function () {
     const file = imageInput.files[0];
-
     if (file) {
       const reader = new FileReader();
-
       reader.onload = function (e) {
         imagePreview.src = e.target.result;
-
         textInput.style.display = "none";
         uploadsContainer.style.display = "block";
       };
-
       reader.readAsDataURL(file);
     }
   });
-//This function is responsible for adding chats to the history
+
   function addMessageToChatHistory(imageSrc, description, className) {
     const messageElement = document.createElement("div");
     messageElement.classList.add("message", className);
 
-//dynamically adding images to chat history
-  if (imageSrc) {
-    console.log("Image Source:", imageSrc);
-    const imgElement = document.createElement("img");
-    imgElement.src = imageSrc;
-    imgElement.style.maxWidth = "100px"; // Small preview size
-    imgElement.style.cursor = "pointer"; // Show pointer cursor on hover
-    imgElement.addEventListener("click", function () {
-      openModal(imageSrc); // Open modal with the clicked image
-    });
-    messageElement.appendChild(imgElement);
-
-    //for the enlargeimage
-
-    // Function to open the modal with a specific image
-    function openModal(imageSrc) {
-      modal.style.display = "flex";
-      modalImage.src = imageSrc;
+    if (imageSrc) {
+      const imgElement = document.createElement("img");
+      imgElement.src = imageSrc;
+      imgElement.style.maxWidth = "100px";
+      imgElement.style.cursor = "pointer";
+      imgElement.addEventListener("click", function () {
+        openModal(imageSrc);
+      });
+      messageElement.appendChild(imgElement);
     }
 
-    // Close the modal when clicking the close button
-    closeModal.addEventListener("click", function () {
-      modal.style.display = "none";
-    });
-
-    // Close the modal when clicking outside the image
-    window.addEventListener("click", function (event) {
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    });
-  }
-
+    // Convert description text to Markdown
+    const markdownText = marked.parse(description);
 
     const textElement = document.createElement("div");
     textElement.classList.add("text");
-    textElement.textContent = description;
+    textElement.innerHTML = markdownText; // Injecting Markdown as HTML
     messageElement.appendChild(textElement);
 
     chatHistory.appendChild(messageElement);
   }
 
-  function generateBotReply() {
-    return `Received your message/image. How can I assist you further?`;
+  function openModal(imageSrc) {
+    modal.style.display = "flex";
+    modalImage.src = imageSrc;
   }
+
+  closeModal.addEventListener("click", function () {
+    modal.style.display = "none";
+  });
+
+  window.addEventListener("click", function (event) {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  });
 
   function saveMessageToLocalStorage(imageSrc, description, className) {
     let messages = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -166,7 +199,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (savedTimestamp) {
       const currentTime = Date.now();
       const timeDifference = currentTime - savedTimestamp;
-
       if (timeDifference > EXPIRY_TIME) {
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem(TIMESTAMP_KEY);
@@ -174,4 +206,3 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 });
-

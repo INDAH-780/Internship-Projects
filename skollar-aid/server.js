@@ -18,6 +18,7 @@ const apiKey = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 const fileManager = new GoogleAIFileManager(apiKey);
 
+console.log("Gemini API Key:", process.env.GEMINI_API_KEY);
 
 
 const app = express();
