@@ -10,10 +10,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const modal = document.getElementById("imageModal");
   const modalImage = document.getElementById("modalImage");
   const closeModal = document.querySelector(".close");
+   const imageWrapper = document.querySelector(".image-wrapper");
+   const closeIcon = document.querySelector(".close-icon");
+
+
 
   const STORAGE_KEY = "chatHistory";
   const TIMESTAMP_KEY = "chatTimestamp";
-  const EXPIRY_TIME = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+  const EXPIRY_TIME = 4 * 60 * 1000; // 4 hours in milliseconds
   const BASE_URL = "http://localhost:3000"; // Base URL for accessing files
 
   // Initialize Markdown parser
@@ -24,14 +28,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Load chat history from local storage, this is a function call and the function is found down, at the end of this file
   loadChatHistory();
-//event listener to handle form submision
+  //event listener to handle form submision
+  closeIcon.addEventListener("click", function () {
+    // Reset the image preview and hide the uploads container
+    imagePreview.src = "";
+    uploadsContainer.style.display = "none";
+    textInput.style.display = "block"; // Show the text input again
+  });
+  
   textChatForm.addEventListener("submit", async function (event) {
     event.preventDefault(); //prevent the default form submission
 
     // Handle text message submission
     const message = textInput.value.trim(); //trim removes unneccesary white spaces
     if (message) {
-      addMessageToChatHistory(null, message, "user-message");  //user-message is the classname of the users div that is being created in js and dynamycally added to the chathistory when a user sends a message
+      // Clear the text input field immediately
+      textInput.value = ""; // This clears the input field after sending
+      addMessageToChatHistory(null, message, "user-message"); //user-message is the classname of the users div that is being created in js and dynamycally added to the chathistory when a user sends a message
       saveMessageToLocalStorage(null, message, "user-message");
 
       try {
@@ -58,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Error fetching bot reply:", error);
       }
 
-      textInput.value = "";
+      //textInput.value = "";
       chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
@@ -69,6 +82,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const formData = new FormData();
       formData.append("image", imageFile);
       formData.append("description", description);
+
+      // Clear the image input and description input fields immediately
+      imageInput.value = ""; // Clear image input
+      descriptionInput.value = ""; // Clear description input
+      imagePreview.src = ""; // Clear image preview
+      imagePreview.alt = ""; // Clear image alt text to remove fallback text
 
       try {
         const uploadResponse = await fetch(`${BASE_URL}/upload`, {
@@ -109,14 +128,11 @@ document.addEventListener("DOMContentLoaded", function () {
           setTimeout(() => {
             addMessageToChatHistory(null, botReply, "bot-message");
             saveMessageToLocalStorage(null, botReply, "bot-message");
-          }, 1000);
+          });
 
-          // Clear inputs and preview
-          imageInput.value = "";
-          imagePreview.src = "";
+          // Reset visibility of text input and upload container
           textInput.style.display = "block";
           uploadsContainer.style.display = "none";
-          descriptionInput.value = "";
           chatHistory.scrollTop = chatHistory.scrollHeight;
         }
       } catch (error) {
