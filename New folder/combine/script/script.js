@@ -1,55 +1,128 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Wait until the DOM is fully loaded before executing the script, wait until the html and css is loaded completely before executing js.
   const textChatForm = document.getElementById("chat-form");
   const chatHistory = document.getElementById("chat-history");
   const textInput = document.getElementById("textInput");
-  const descriptionInput = document.getElementById("descriptionInput");
   const imageInput = document.getElementById("imageInput");
-  const uploadsContainer = document.getElementById("uploads");
   const imagePreview = document.getElementById("imagePreview");
+  const closeIcon = document.querySelector(".close-icon");
+  const imageWrapper = document.querySelector(".image-wrapper");
+  const uploadIcon = document.querySelector(".imgg label");
   const modal = document.getElementById("imageModal");
   const modalImage = document.getElementById("modalImage");
   const closeModal = document.querySelector(".close");
-   const imageWrapper = document.querySelector(".image-wrapper");
-   const closeIcon = document.querySelector(".close-icon");
-
-
 
   const STORAGE_KEY = "chatHistory";
   const TIMESTAMP_KEY = "chatTimestamp";
-  const EXPIRY_TIME = 4 * 60 * 1000; // 4 hours in milliseconds
+  const EXPIRY_TIME = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
   const BASE_URL = "http://localhost:3000"; // Base URL for accessing files
 
   // Initialize Markdown parser
   const marked = window.marked;
 
-  // Check if the chat history is older than 4 hours, this is a function call and the function is found down, at the end of this file
+  // Check chat history expiry and load if valid
   checkChatExpiry();
-
-  // Load chat history from local storage, this is a function call and the function is found down, at the end of this file
   loadChatHistory();
-  //event listener to handle form submision
-  closeIcon.addEventListener("click", function () {
-    // Reset the image preview and hide the uploads container
-    imagePreview.src = "";
-    uploadsContainer.style.display = "none";
-    textInput.style.display = "block"; // Show the text input again
-  });
-  
-  textChatForm.addEventListener("submit", async function (event) {
-    event.preventDefault(); //prevent the default form submission
 
-    // Handle text message submission
-    const message = textInput.value.trim(); //trim removes unneccesary white spaces
-    if (message) {
-      // Clear the text input field immediately
-      textInput.value = ""; // This clears the input field after sending
-      addMessageToChatHistory(null, message, "user-message"); //user-message is the classname of the users div that is being created in js and dynamycally added to the chathistory when a user sends a message
+  // Hide image wrapper by default
+  imageWrapper.style.display = "none";
+
+  closeIcon.addEventListener("click", function () {
+    imagePreview.src = "";
+    imageWrapper.style.display = "none";
+  });
+  console.log("Adding click listener to uploadIcon");
+
+  uploadIcon.addEventListener("click", function (event) {
+    console.log("Upload icon clicked");
+    event.preventDefault(); // Prevent default action, like form submission
+    imageInput.click(); // Trigger file input click
+  });
+
+console.log("Adding change listener to imageInput");
+  imageInput.addEventListener("change", function () {
+     console.log("Image input changed");
+    const file = imageInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        imagePreview.src = e.target.result;
+        imageWrapper.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  textChatForm.addEventListener("submit", async function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const message = textInput.value.trim();
+    const imageFile = imageInput.files[0];
+
+    if (!message && !imageFile) {
+      // No message or image, so don't proceed
+      return;
+    }
+
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      formData.append("message", message);
+
+      try {
+        const response = await fetch(`${BASE_URL}/upload`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        if (data.imageUrl) {
+          const imageUrl = `${BASE_URL}${data.imageUrl}`;
+
+          // Clear the input fields immediately
+          textInput.value = "";
+          imageInput.value = ""; 
+          imagePreview.src = "";
+          imageWrapper.style.display = "none";
+
+          // Add to chat history
+          addMessageToChatHistory(imageUrl, message, "user-message");
+          saveMessageToLocalStorage(imageUrl, message, "user-message");
+
+          // Send message and image info to chatbot API
+          const chatResponse = await fetch(`${BASE_URL}/api/message`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message: message, filePath: data.filePath }),
+          });
+
+          if (!chatResponse.ok) {
+            throw new Error("Network response was not ok");
+          }
+
+          const chatData = await chatResponse.json();
+          const botReply = chatData.reply || "Sorry, no reply from the bot.";
+          setTimeout(() => {
+            addMessageToChatHistory(null, botReply, "bot-message");
+            saveMessageToLocalStorage(null, botReply, "bot-message");
+          }, 1000);
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
+    } else {
+      // Handle text-only submission
+      textInput.value = "";
+      addMessageToChatHistory(null, message, "user-message");
       saveMessageToLocalStorage(null, message, "user-message");
 
       try {
         const response = await fetch(`${BASE_URL}/api/message`, {
-          // Send the message to the chatbot API
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -70,91 +143,11 @@ document.addEventListener("DOMContentLoaded", function () {
       } catch (error) {
         console.error("Error fetching bot reply:", error);
       }
-
-      //textInput.value = "";
-      chatHistory.scrollTop = chatHistory.scrollHeight;
     }
-
-    // Handle image upload
-    const imageFile = imageInput.files[0];
-    const description = descriptionInput.value.trim();
-    if (imageFile && description) {
-      const formData = new FormData();
-      formData.append("image", imageFile);
-      formData.append("description", description);
-
-      // Clear the image input and description input fields immediately
-      imageInput.value = ""; // Clear image input
-      descriptionInput.value = ""; // Clear description input
-      imagePreview.src = ""; // Clear image preview
-      imagePreview.alt = ""; // Clear image alt text to remove fallback text
-
-      try {
-        const uploadResponse = await fetch(`${BASE_URL}/upload`, {
-          // Send the form data to the server for upload
-          method: "POST",
-          body: formData,
-        });
-
-        if (!uploadResponse.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        const data = await uploadResponse.json();
-        if (data.imageUrl) {
-          // Prepend the base URL to the image URL
-          const imageUrl = `${BASE_URL}${data.imageUrl}`;
-          addMessageToChatHistory(imageUrl, description, "user-message");
-          saveMessageToLocalStorage(imageUrl, description, "user-message");
-
-          // Send message and file path to the chatbot
-          const messageResponse = await fetch(`${BASE_URL}/api/message`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              message: message,
-              filePath: data.filePath,
-            }),
-          });
-
-          if (!messageResponse.ok) {
-            throw new Error("Network response was not ok");
-          }
-
-          const messageData = await messageResponse.json();
-          const botReply = messageData.reply || "Sorry, no reply from the bot.";
-          setTimeout(() => {
-            addMessageToChatHistory(null, botReply, "bot-message");
-            saveMessageToLocalStorage(null, botReply, "bot-message");
-          });
-
-          // Reset visibility of text input and upload container
-          textInput.style.display = "block";
-          uploadsContainer.style.display = "none";
-          chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-      } catch (error) {
-        console.error("Error uploading image:", error);
-      }
-    }
+     console.log("Form submitted");
   });
 
-  imageInput.addEventListener("change", function () {
-    const file = imageInput.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        imagePreview.src = e.target.result;
-        textInput.style.display = "none";
-        uploadsContainer.style.display = "block";
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
-  function addMessageToChatHistory(imageSrc, description, className) {
+  function addMessageToChatHistory(imageSrc, text, className) {
     const messageElement = document.createElement("div");
     messageElement.classList.add("message", className);
 
@@ -163,21 +156,28 @@ document.addEventListener("DOMContentLoaded", function () {
       imgElement.src = imageSrc;
       imgElement.style.maxWidth = "100px";
       imgElement.style.cursor = "pointer";
+
       imgElement.addEventListener("click", function () {
         openModal(imageSrc);
       });
       messageElement.appendChild(imgElement);
     }
 
-    // Convert description text to Markdown
-    const markdownText = marked.parse(description);
-
+    const markdownText = marked.parse(text);
     const textElement = document.createElement("div");
     textElement.classList.add("text");
-    textElement.innerHTML = markdownText; // Injecting Markdown as HTML
+    textElement.innerHTML = markdownText;
     messageElement.appendChild(textElement);
 
     chatHistory.appendChild(messageElement);
+    chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll to the bottom after message
+  }
+
+  function saveMessageToLocalStorage(imageSrc, message, className) {
+    let messages = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    messages.push({ imageSrc, message, className });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    localStorage.setItem(TIMESTAMP_KEY, Date.now());
   }
 
   function openModal(imageSrc) {
@@ -195,17 +195,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  function saveMessageToLocalStorage(imageSrc, description, className) {
-    let messages = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    messages.push({ imageSrc, description, className });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-    localStorage.setItem(TIMESTAMP_KEY, Date.now());
-  }
-
   function loadChatHistory() {
     let messages = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
     messages.forEach((msg) => {
-      addMessageToChatHistory(msg.imageSrc, msg.description, msg.className);
+      addMessageToChatHistory(msg.imageSrc, msg.message, msg.className);
     });
     chatHistory.scrollTop = chatHistory.scrollHeight;
   }

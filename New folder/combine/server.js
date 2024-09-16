@@ -42,6 +42,7 @@ const upload = multer({ storage: storage }).single("image");
 
 // Upload route
 //After successful upload, it uploads the file to Gemini using uploadToGemini and sends back the file URL, description, and file path
+
 app.post("/upload", (req, res) => {
   upload(req, res, async (err) => {
     if (err) {
@@ -54,13 +55,11 @@ app.post("/upload", (req, res) => {
     const filePath = req.file.path;
 
     try {
-      // Upload the file to Gemini
       const file = await uploadToGemini(filePath, req.file.mimetype);
-
       res.json({
-        imageUrl: `/uploads/${req.file.filename}`, // URL path for accessing the file
+        imageUrl: `/uploads/${req.file.filename}`,
         description: req.body.description,
-        filePath: filePath, // Include filePath in the response
+        filePath: filePath,
       });
     } catch (error) {
       console.error("Error during Gemini API call:", error);
@@ -71,7 +70,11 @@ app.post("/upload", (req, res) => {
   });
 });
 
+
+
+
 // API endpoint for messages
+
 app.post("/api/message", async (req, res) => {
   const { message, filePath } = req.body;
 

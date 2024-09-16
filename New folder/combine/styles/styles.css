@@ -1,266 +1,238 @@
 * {
-    font-family: "Poppins", sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    min-width: 100vh;
-    background-color: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
 }
 
 .formH {
-    display: flex;
-    align-items: center;
-   //justify-content: space-between;
-    width: 100%;
-     background: #ccc;
-     height: 99px;
-     border-radius: 25px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: #ccc;
+  height: 99px;
+  border-radius: 25px;
 }
 
 .content {
-    display: flex;
-    align-items: center;
-    width: 90%;
-    height: 50px;
-    gap: 10px;
-     
-    
+  display: flex;
+  align-items: center; /* Align items horizontally */
+  width: 90%;
+  gap: 10px;
+   height: 99px;
+ 
+}
+textarea {
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  resize: none; /* Optional: to disable resizing */
 }
 
-.text {
-    flex: 7;
+
+.context {
+  flex: 7;
+  width: 600px;
+  height:  60px;
+ 
+  padding-bottom: 99px;
 }
 
 #textInput {
-    width: 100%;
-    padding: 10px;
-   border: none;
-    outline: none;
-  background-color: #ccc;
+  width: 100%;
+  padding: 10px;
+   height:  40px;
+  border: none;
+  outline: none;
+  background: #ccc;
+  border-radius: 8px;
+  
+  
 }
 
-#uploads {
-    display: flex;
-    //argin: 2px;
-    border-radius: 8px;
-    //background: #ff0000;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    //padding: 10px;
-    height: 90px;
-    width: 100%; /* Make width 100% */
-    max-width: calc(100% - 20px); /* Ensure it does not overflow */
+#imageInput {
+  display: none;
 }
 
 .imgg {
-    flex: 1.5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: static;
-}
-
-
-.image-wrapper {
-    position: relative;
-    display: inline-block;
-}
-
-#imagePreview {
-    height: 50px;
-    max-width: 100px;
-    border-radius: 8px;
-    display: block;
-}
-
-.close-icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: none;
-    font-size: 50px;
-    color: white;
-    cursor: pointer;
-    z-index: 10;
-   
-    width: 20px;
-    border-radius: 50%;
-    align-items: center;
-}
-
-.image-wrapper:hover .close-icon {
-    display: block;
-}
-
-textarea{
-    outline: none;
-    background: red;
-}
-
-#descriptionInput {
-     width: 100%; 
-    //padding: 10px;
-    height: 17px;
-    background-color: #ccc;
-    border: none;
-    outline: none;
-    //border-radius: 5px; 
+  flex: 1.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #sendButton {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 #sendButton:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
+}
+
+.image-wrapper {
+  display: none;
+  position: relative;
+  max-width: 100px;
+  margin-left: 10px; /* Add margin to space it from upload button */
+}
+
+#imagePreview {
+  height: 50px;
+  border-radius: 8px;
+  display: block;
+}
+
+.close-icon {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+  background-color: black;
+  border-radius: 50%;
+  padding: 2px 6px;
+  display: none;
+}
+
+.image-wrapper:hover .close-icon {
+  display: block;
 }
 
 #chat-container {
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    width: 900px;
-    background-color: white;
-    margin-top: 30px;
-    // background: #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  width: 900px;
+  background-color: white;
+  margin-top: 30px;
 }
 
 #header {
-    margin-bottom: 20px;
-    text-align: center;
-
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 #chat-history {
-    z-index: 9;
-    max-height: 400px;
-    overflow-y: auto;
-    margin-bottom: 10px;
-    
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 10px;
 }
 
 .message {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
 }
 
 .message img {
-    max-width: 100%;
-    max-height: 200px;
-    border-radius: 8px;
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
 }
 
 .message .text {
-    margin-top: 5px;
-    max-width: 100%;
-    word-wrap: break-word;
+  margin-top: 5px;
+  max-width: 100%;
+  word-wrap: break-word;
 }
 
 .user-message {
-    align-items: flex-end;
+  align-items: flex-end;
 }
 
 .user-message .text {
-    background-color: #d1e7dd;
-    color: #0f5132;
-    padding: 10px;
-    border-radius: 10px;
+  background-color: #d1e7dd;
+  color: #0f5132;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 .bot-message .text {
-    background-color: #cce5ff;
-    color: #004085;
-    padding: 10px;
-    border-radius: 10px;
+  background-color: #cce5ff;
+  color: #004085;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 500px;
 }
 
-form, #image-chat-form {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-input[type="file"] {
-    flex-grow: 1;
-   background-color: #ccc;
-   // border-radius: 5px;
-    padding: 5px;
-}
-
-input[type="text"] {
-    flex-grow: 2;
-    padding: 10px;
-   background-color: #ccc;
-    //border-radius: 5px;
-}
-
-/* Styles for the modal */
+/* Modal styles */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 9999; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0, 0, 0, 0.8); /* Black background with opacity */
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-/* Container for modal content and close button */
-.modal-content-container {
-    position: relative;
-    max-width: 90%;
-    max-height: 80%;
-    margin: auto;
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .modal-content {
-    max-width: 100%;
-    max-height: 100%;
+  max-width: 90%;
+  max-height: 80%;
 }
 
 .close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    color: #fff;
-    font-size: 40px;
-    font-weight: bold;
-    cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 30px;
+  color: white;
+  cursor: pointer;
 }
 
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+#modalImage {
+  max-width: 90%;
+  max-height: 80%;
+  border-radius: 10px;
 }
 
-/* Caption for the image */
-#caption {
-    color: #ccc;
-    padding: 10px 20px;
-    text-align: center;
+/* Hide scrollbar for Webkit browsers (Chrome, Safari, Edge) */
+textarea {
+  scrollbar-width: none;  /* For Firefox */
+  -ms-overflow-style: none;  /* For Internet Explorer and Edge */
 }
 
+textarea::-webkit-scrollbar {
+  display: none;  /* For Chrome, Safari, and Opera */
+}
 
+/* Whole window scrollbar customization */
+::-webkit-scrollbar {
+    width: 16px; /* Width of the vertical scrollbar */
+    height: 16px; /* Height of the horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background color of the track */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888; /* Color of the draggable part */
+    border-radius: 8px; /* Rounded corners */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Darker color when hovering */
+}

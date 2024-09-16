@@ -24,26 +24,22 @@
         <form id="chat-form">
           <div class="formH">
             <div class="content">
-              <div class="text">
-                <input
+              <div class="context">
+                <div class="text">
+                <textarea
                   id="textInput"
                   type="text"
-                  placeholder="Your message here"
-                />
+                  placeholder="enter prompt here"
+                ></textarea>
               </div>
 
               <!-- Uploads container which will be hidden and will only be visible when the upload icon is clicked-->
-              <div id="uploads" class="uploads" style="display: none">
                 <div class="image-wrapper">
                   <img id="imagePreview" alt="Image Preview" />
                   <span class="close-icon">&times;</span>
-                </div>
-                <input
-                  id="descriptionInput"
-                  type="text"
-                  placeholder="Type a description"
-                />
-              </div>
+                </div></div>
+                
+              
 
               <!-- Upload button and file input -->
               <div class="imgg">
@@ -78,5 +74,4 @@
     <script src="script/script.js"></script>
   </body>
 </html>
-
 
