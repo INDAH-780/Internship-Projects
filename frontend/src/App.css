@@ -1,0 +1,168 @@
+/* Apply Google Font across all pages */
+/* Make sure the body and html take up the full viewport */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  font-family: 'Roboto', sans-serif; /* Use Google Fonts */
+  display: flex;
+   justify-content: center;
+  align-items: center;
+ width: 100%;
+  background-color: #f4f4f9;
+}
+
+.home-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.start-btn {
+  background-color: #007bff; /* Blue background */
+  color: white; /* White text */
+  font-size: 24px; /* Large text */
+  padding: 15px 30px; /* Make the button large */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.start-btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+
+
+
+
+/* Style for the MainPage component */
+.main-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100vh; /* Fill the entire viewport */
+  padding: 5px;
+  width: 100vw;
+}
+
+
+
+
+/* Essay form styling */
+ textarea {
+  width: 98%;
+  height: 100px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  resize: none;
+  outline: none;
+}
+
+
+/* Timer styles */
+.timer-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #dc3545; /* Red background */
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 100; /* Ensure it's above other content */
+}
+
+/* Question component styles */
+.questions-container {
+ //background-color: #d6eaff; /* Light blue background */
+  color: #333; /* Black text */
+  padding: 20px;
+  margin-top: 80px;
+  margin-left: 20px;
+  margin-right: 20px;
+  top: 90px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Essay form container */
+.essay-container {
+  margin-top: 20px; /* Adds space above the essay container */
+  margin-bottom: 20px; /* Space below the essay container */
+  padding: 10px; /* Optional: Add padding for better spacing */
+ 
+  border-radius: 5px; /* Optional: Rounded corners */
+
+}
+
+
+/* Submit button styles */
+.submit-button {
+  background-color: #007bff; /* Blue background */
+  color: white;
+  padding: 12px 24px;
+  font-size: 18px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+ margin-top: 50px;
+  width: 100%;
+  max-width: 300px; /* Ensure it doesn't get too large on big screens */
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.submit-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.disclaimer {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.disclaimer p {
+  font-size: 0.9em;
+  color: #666;
+}
+.result-container {
+  background-color: #ffffff; /* White background for clarity */
+  border: 1px solid #e0e0e0; /* Light grey border */
+  border-radius: 8px; /* Rounded corners */
+  padding: 20px; /* Spacing inside the container */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  margin: 20px auto; /* Centering the container with margin */
+  max-width: 600px; /* Maximum width for larger screens */
+}
+
+.result-container h2 {
+  font-size: 1.5em; /* Larger font size for the heading */
+  color: #333; /* Dark grey color for the heading */
+  margin-bottom: 15px; /* Space below the heading */
+}
+
+.result-container ul {
+  list-style-type: none; /* Remove default bullet points */
+  padding: 0; /* Remove default padding */
+}
+
+.result-container li {
+  font-size: 1.2em; /* Font size for results */
+  margin: 10px 0; /* Space between items */
+  color: #444; /* Darker grey color for the results */
+  border-bottom: 1px solid #e0e0e0; /* Bottom border for separation */
+  padding-bottom: 5px; /* Space below the text */
+}
